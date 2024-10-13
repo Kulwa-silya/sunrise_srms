@@ -2,15 +2,22 @@ from django.db import models
 from django.conf import settings
 
 class Form(models.Model):
-    name = models.CharField(max_length=10)
-    level = models.IntegerField(choices=[(i, f"Form {i}") for i in range(1, 5)])
+    FORM_CHOICES = [(i, f"Form {i}") for i in range(1, 5)]
+    level = models.IntegerField(choices=FORM_CHOICES, unique=True)
 
     def __str__(self):
-        return self.name
+        return f"Form {self.level}"
 
 class Specialization(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+    head = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='headed_department')
 
     def __str__(self):
         return self.name
@@ -34,18 +41,31 @@ class Subject(models.Model):
 
 
 
-class Department(models.Model):
-    # ... (existing fields)
 
 class Class(models.Model):
     name = models.CharField(max_length=50)
-    form = models.ForeignKey(Form, on_delete=models.CASCADE)
-    specialization = models.ForeignKey(Specialization, on_delete=models.SET_NULL, null=True, blank=True)
-    year = models.IntegerField()
+    form = models.ForeignKey('Form', on_delete=models.CASCADE)
+    specialization = models.ForeignKey('Specialization', on_delete=models.SET_NULL, null=True, blank=True)
+    academic_year = models.CharField(max_length=9)  # e.g., "2023/2024"
     teachers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='classes_taught')
 
+    class Meta:
+        unique_together = ('name', 'form', 'specialization', 'academic_year')
+        verbose_name_plural = "Classes"
+
     def __str__(self):
-        return f"{self.name} - {self.form} - {self.year}"
+        if self.specialization:
+            return f"{self.form} {self.specialization} {self.name} - {self.academic_year}"
+        return f"{self.form} {self.name} - {self.academic_year}"
+
+    @property
+    def students(self):
+        return self.enrollment_set.filter(academic_year=self.academic_year).select_related('student')
+
+    def get_subjects(self):
+        if self.form.level <= 2:
+            return Subject.objects.filter(forms=self.form)
+        return Subject.objects.filter(forms=self.form, specializations=self.specialization)
 
 
 class Event(models.Model):
