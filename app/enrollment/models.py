@@ -1,3 +1,4 @@
+#app/enrollment/model.py
 from django.db import models
 from django.conf import settings
 from app.core.models import Form, Specialization, Class

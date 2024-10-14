@@ -1,3 +1,4 @@
+#app/fees/models.py
 from django.db import models
 
 class Fee(models.Model):

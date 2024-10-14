@@ -1,3 +1,4 @@
+#app/core/models.py
 from django.db import models
 from django.conf import settings
 
@@ -17,7 +18,7 @@ class Specialization(models.Model):
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
-    head = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='headed_department')
+    head = models.ForeignKey('users.TeacherProfile', on_delete=models.SET_NULL, null=True, related_name='headed_department')
 
     def __str__(self):
         return self.name
@@ -32,7 +33,7 @@ class Subject(models.Model):
     code = models.CharField(max_length=10, unique=True)
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    teachers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='subjects_taught')
+    teachers = models.ManyToManyField('users.TeacherProfile', related_name='subjects_taught')
     forms = models.ManyToManyField(Form)
     specializations = models.ManyToManyField(Specialization, blank=True)
 
@@ -47,7 +48,8 @@ class Class(models.Model):
     form = models.ForeignKey('Form', on_delete=models.CASCADE)
     specialization = models.ForeignKey('Specialization', on_delete=models.SET_NULL, null=True, blank=True)
     academic_year = models.CharField(max_length=9)  # e.g., "2023/2024"
-    teachers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='classes_taught')
+    # teachers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='classes_taught')
+    teachers = models.ManyToManyField('users.TeacherProfile', related_name='classes_taught')
 
     class Meta:
         unique_together = ('name', 'form', 'specialization', 'academic_year')

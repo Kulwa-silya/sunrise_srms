@@ -1,3 +1,4 @@
+#app/results/models.py
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -38,9 +39,9 @@ class Result(models.Model):
     )
     grade = models.CharField(max_length=1, choices=GRADE_CHOICES)
     points = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='results_uploaded')
+    uploaded_by = models.ForeignKey('users.TeacherProfile', on_delete=models.SET_NULL, null=True, related_name='results_uploaded')
     approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='results_approved')
+    approved_by = models.ForeignKey('users.TeacherProfile', on_delete=models.SET_NULL, null=True, related_name='results_approved')
 
     class Meta:
         unique_together = ('student', 'subject', 'examination')

@@ -1,6 +1,7 @@
 # app/users/serializers.py
 from rest_framework import serializers
-from .models import CustomUser, ParentProfile
+from .models import CustomUser, ParentProfile,TeacherProfile, StaffProfile, TeacherRole
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +17,26 @@ class ParentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParentProfile
         fields = ['id', 'user', 'children']
+
+class TeacherRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherRole
+        fields = ['id', 'role']
+
+class TeacherProfileSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    department = serializers.StringRelatedField()
+    additional_roles = TeacherRoleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TeacherProfile
+        fields = ['id', 'user', 'department', 'additional_roles']
+
+class StaffProfileSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    department = serializers.StringRelatedField()
+    additional_roles = TeacherRoleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StaffProfile
+        fields = ['id', 'user', 'is_teacher', 'department', 'additional_roles']
