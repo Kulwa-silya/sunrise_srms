@@ -20,5 +20,8 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy the project files into the container
 COPY . /app/
 
+RUN adduser --disabled-password --gecos '' celery-user
+USER celery-user
+
 # Run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
